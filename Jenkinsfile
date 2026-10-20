@@ -57,16 +57,33 @@ pipeline {
         }
 
         stage('Verify') {
-            steps {
-                sh '''
-                    kubectl get pods -l app=task-manager
-                    kubectl get deployment task-manager
-                    kubectl get svc task-manager
-                    curl -sf http://$(minikube ip):30080/health && echo " <- app is healthy"
-                '''
-            }
-        }
+    steps {
+        sh '''
+            kubectl get pods -l app=task-manager
+            kubectl get deployment task-manager
+            kubectl get svc task-manager
+
+            kubectl port-forward --address 127.0.0.1 \
+                svc/task-manager 5002:5000 \
+                >/tmp/task-manager-verify.log 2>&1 &
+            PF_PID=$!
+            trap 'kill $PF_PID 2>/dev/null || true' EXIT
+
+            for i in $(seq 1 15); do
+                if curl -fsS http://127.0.0.1:5002/health; then
+                    echo
+                    echo "Application health check passed"
+                    exit 0
+                fi
+                sleep 2
+            done
+
+            cat /tmp/task-manager-verify.log
+            echo "Health check failed"
+            exit 1
+        '''
     }
+}
 
     post {
         always {
