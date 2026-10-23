@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template_string, request, url_for
 #test
 app = Flask(__name__)
 
-APP_VERSION = "v2"
+APP_VERSION = "v3"
 tasks = []  # in-memory store, kept simple on purpose
 
 PAGE = """
