@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template_string, request, url_for
 #test webhook
 app = Flask(__name__)
 
-APP_VERSION = "v3"
+APP_VERSION = "v4"
 tasks = []  # in-memory store, kept simple on purpose
 
 PAGE = """
